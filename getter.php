@@ -17,17 +17,30 @@ trait HasDynamicProperties
             if(isset($this->$propertyName)) {
                 return $this->$propertyName;
             } else {
-                return null;
+                /**
+                 * As per the specification, the application throws an exception when the property
+                 * we are trying to get the value of does not exist.
+                 */
+                return new Exception('Property ' . $propertyName . ' does not exist on this object.');
             }
         }
 
         if($action === 'set') {
+            /**
+             * In cases where we are setting a property, these is no need to check
+             * whether the value exists or not as we can dynamically create it.
+             *
+             * Despite the specification asking to throw an exception, we can make this
+             * trait more user friendly if we just go ahead and create it if it doesn't exist.
+             *
+             * If we really wished to, we could throw a notice.
+             */
             $propertyName = lcfirst(substr($name, 3));
             $this->$propertyName = $arguments[0];
             return null;
         }
 
-        return null;
+        return new Exception('Method ' . $name . ' does not exist.');
     }
 }
 
